@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.views.generic.detail import DetailView
-from .models import Book, Library  # ✅ Now explicitly includes Library
+from .models import Book, Library 
 
 # ✅ Function-based view that lists all books
 def list_books(request):
-    books = Book.objects.all()  # ✅ Uses Book.objects.all()
+    books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})  # ✅ Uses full template path
 
 # ✅ Class-based view to display details of a specific library
