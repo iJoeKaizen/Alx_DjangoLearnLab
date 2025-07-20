@@ -11,19 +11,6 @@ from .models import Book, Library, Author
 from .forms import BookForm
 
 
-
-# --- 🔒 Role Helper Decorator ---
-def check_role(required_role):
-    def decorator(user):
-        return (
-            user.is_authenticated and
-            hasattr(user, 'userprofile') and 
-            user.userprofile.role == required_role
-        )
-    return decorator
-
-
-# --- 📚 Book CRUD Views ---
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
     if request.method == 'POST':
@@ -58,13 +45,21 @@ def delete_book(request, book_id):
     return render(request, 'book_confirm_delete.html', {'book': book})
 
 
-# --- 📄 Book List ---
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'list_books.html', {'books': books})
 
 
-# --- 🧑‍💼 Role-Based Views ---
+def check_role(required_role):
+    def decorator(user):
+        return (
+            user.is_authenticated and
+            hasattr(user, 'userprofile') and 
+            user.userprofile.role == required_role
+        )
+    return decorator
+
+
 @login_required
 @user_passes_test(check_role('Admin'))
 def admin_view(request):
@@ -83,14 +78,12 @@ def member_view(request):
     return render(request, 'member_view.html')
 
 
-# --- 🏛️ Library Detail View ---
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
 
-# --- 📝 Registration View ---
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
