@@ -40,7 +40,7 @@ from .models import Library, Book, UserProfile
 # def member_view(request):
 #     return render(request, 'relationship_app/member_view.html')
 
-def check_role_admin(user):
+def admin(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
 def check_role_librarian(user):
