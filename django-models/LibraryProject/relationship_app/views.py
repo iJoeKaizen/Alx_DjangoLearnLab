@@ -4,44 +4,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from .models import Library, Book, UserProfile
 
-# Role-check helper
-# def check_role(role):
-#     def inner(user):
-#         return hasattr(user, 'userprofile') and user.userprofile.role == role
-#     return inner
 
-# Registration view
-# def register(request):
-#     if request.method == 'POST':
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)  # Automatically log in the user
-#             return redirect('member_view')  # Redirect based on role later if needed
-#     else:
-#         form = UserCreationForm()
-#     return render(request, 'relationship_app/register.html', {'form': form})
+# def check_role_admin(user):
+#     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
-# # Admin-only view
-# @user_passes_test(check_role('Admin'))
-# @login_required
-# def admin_view(request):
-#     return render(request, 'relationship_app/admin_view.html')
-
-# # Librarian-only view
-# @user_passes_test(check_role('Librarian'))
-# @login_required
-# def librarian_view(request):
-#     return render(request, 'relationship_app/librarian_view.html')
-
-# # Member-only view
-# @user_passes_test(check_role('Member'))
-# @login_required
-# def member_view(request):
-#     return render(request, 'relationship_app/member_view.html')
-
-def admin(user):
-    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+def check_role(role_name):
+    def decorator(user):
+        return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == role_name
+    return decorator
 
 def check_role_librarian(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
@@ -49,18 +19,19 @@ def check_role_librarian(user):
 def check_role_member(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
+
 @login_required
-@user_passes_test(check_role_admin)
+@user_passes_test(check_role('Admin'))
 def admin_view(request):
     return render(request, 'admin_view.html')
 
 @login_required
-@user_passes_test(check_role_librarian)
+@user_passes_test(check_role('Librarian'))
 def librarian_view(request):
     return render(request, 'librarian_view.html')
 
 @login_required
-@user_passes_test(check_role_member)
+@user_passes_test(check_role('Member'))
 def member_view(request):
     return render(request, 'member_view.html')
 
