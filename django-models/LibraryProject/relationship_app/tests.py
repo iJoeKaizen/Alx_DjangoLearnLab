@@ -7,33 +7,20 @@ class AdminViewTests(TestCase):
     def setUp(self):
         self.client = Client()
         
-        # Create test users with different roles
-        self.admin_user = User.objects.create_user(
-            username='admin', 
-            password='testpass123'
-        )
-        UserProfile.objects.create(
-            user=self.admin_user, 
-            role='Admin'
-        )
+        # Create users without profiles first
+        self.admin_user = User.objects.create_user(username='admin', password='testpass123')
+        self.librarian_user = User.objects.create_user(username='librarian', password='testpass123')
+        self.member_user = User.objects.create_user(username='member', password='testpass123')
         
-        self.librarian_user = User.objects.create_user(
-            username='librarian', 
-            password='testpass123'
-        )
-        UserProfile.objects.create(
-            user=self.librarian_user, 
-            role='Librarian'
-        )
+        # Update profiles created by signals
+        UserProfile.objects.filter(user=self.admin_user).update(role='Admin')
+        UserProfile.objects.filter(user=self.librarian_user).update(role='Librarian')
+        UserProfile.objects.filter(user=self.member_user).update(role='Member')
         
-        self.member_user = User.objects.create_user(
-            username='member', 
-            password='testpass123'
-        )
-        UserProfile.objects.create(
-            user=self.member_user, 
-            role='Member'
-        )
+        # Refresh user instances to get updated profiles
+        self.admin_user.refresh_from_db()
+        self.librarian_user.refresh_from_db()
+        self.member_user.refresh_from_db()
         
         self.unauthenticated_client = Client()
         
