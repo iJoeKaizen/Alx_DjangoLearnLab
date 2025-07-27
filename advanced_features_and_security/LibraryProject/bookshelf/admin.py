@@ -3,13 +3,13 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from .models import CustomUser, Book
 
-@admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'publication_year')
     list_filter = ('author', 'publication_year')
     search_fields = ('title', 'author')
 
-@admin.register(CustomUser)
+admin.site.register(Book, BookAdmin)
+
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = ("email", "date_of_birth", "is_staff", "is_superuser")
@@ -30,3 +30,5 @@ class CustomUserAdmin(UserAdmin):
             "fields": ("email", "password1", "password2", "is_staff", "is_superuser"),
         }),
     )
+
+admin.site.register(CustomUser, CustomUserAdmin)
