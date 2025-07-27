@@ -120,6 +120,9 @@ CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
 CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com')
 CSP_SCRIPT_SRC = ("'self'",)
 
+
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # ──────────────────────────────
 # 📝 NOTES
 # ──────────────────────────────
