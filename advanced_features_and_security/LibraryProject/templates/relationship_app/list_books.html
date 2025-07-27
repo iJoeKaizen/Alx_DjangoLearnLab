@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Book List</h2>
+
+{% if perms.relationship_app.can_add_book %}
+    <a href="{% url 'add-book' %}" class="btn btn-success mb-3">Add New Book</a>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author.name }}</td>
+            <td>
+                {% if perms.relationship_app.can_change_book %}
+                    <a href="{% url 'edit-book' book.id %}" class="btn btn-sm btn-primary">Edit</a>
+                {% endif %}
+                {% if perms.relationship_app.can_delete_book %}
+                    <a href="{% url 'delete-book' book.id %}" class="btn btn-sm btn-danger">Delete</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
