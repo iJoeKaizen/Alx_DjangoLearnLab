@@ -3,10 +3,10 @@ from pathlib import Path
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY
+# SECURITY SETTINGS
 SECRET_KEY = 'django-insecure-&gt5sh3*tb5gypjms4f%l*#pi=h-4xs--d@27$qpnpr#fqnpb5'
 DEBUG = False  # Turn off in production
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Add your domain in production
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Replace with production domain in deployment
 
 # CUSTOM USER MODEL
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
@@ -25,8 +25,8 @@ INSTALLED_APPS = [
     'relationship_app',
     'accounts',
 
-    # Security Middleware (CSP)
-    'csp',
+    # Third-party apps
+    'csp',  # Content Security Policy Middleware
 ]
 
 # MIDDLEWARE
@@ -38,10 +38,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
+    'csp.middleware.CSPMiddleware',  # For CSP headers
 ]
 
-# URLS & WSGI
+# URL CONFIGURATION
 ROOT_URLCONF = 'LibraryProject.urls'
 WSGI_APPLICATION = 'LibraryProject.wsgi.application'
 
@@ -49,7 +49,7 @@ WSGI_APPLICATION = 'LibraryProject.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Optional: create a global templates folder
+        'DIRS': [BASE_DIR / 'templates'],  # Optional global templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-# DATABASE
+# DATABASE CONFIGURATION (SQLite for dev)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,7 +70,7 @@ DATABASES = {
     }
 }
 
-# PASSWORD VALIDATION
+# PASSWORD VALIDATORS
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -85,21 +85,44 @@ USE_I18N = True
 USE_TZ = True
 
 # STATIC FILES
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Optional: add global static folder
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# DEFAULT PRIMARY KEY FIELD TYPE
+# DEFAULT PRIMARY KEY FIELD
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ✅ SECURITY HEADERS
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+# ────────────────────────────
+# 🔐 HTTPS & SECURITY HEADERS
+# ────────────────────────────
 
-# ✅ CONTENT SECURITY POLICY (CSP)
+# HTTPS Redirection
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Secure Cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Security Headers
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+
+# ──────────────────────────────
+# 📜 CONTENT SECURITY POLICY (CSP)
+# ──────────────────────────────
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
 CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com')
 CSP_SCRIPT_SRC = ("'self'",)
+
+# ──────────────────────────────
+# 📝 NOTES
+# ──────────────────────────────
+# • Update ALLOWED_HOSTS in production
+# • Replace SQLite with PostgreSQL or MySQL for production
+# • Ensure SSL certificates are configured at the web server (e.g., Nginx/Apache)
