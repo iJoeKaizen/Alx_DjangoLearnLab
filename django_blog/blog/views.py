@@ -10,6 +10,7 @@ from .models import Post
 from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm, PostForm
 from .models import Post, Comment
 from .forms import CommentForm
+from taggit.models import Tag
 
 class CustomLoginView(LoginView):
     template_name = 'blog/login.html'
