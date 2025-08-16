@@ -53,6 +53,15 @@ class PostListView(ListView):
     context_object_name = 'posts'
     paginate_by = 10
 
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        return Post.objects.filter(tags__in=[self.tag])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/posts/post_detail.html'
