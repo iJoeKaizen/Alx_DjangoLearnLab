@@ -42,13 +42,26 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'accounts',
+    'posts',
+    'django_filters'
+
 ]
+
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ]
 }
+
+REST_FRAMEWORK.setdefault("DEFAULT_PAGINATION_CLASS",
+    "rest_framework.pagination.PageNumberPagination")
+
+REST_FRAMEWORK.setdefault("DEFAULT_FILTER_BACKENDS", ["django_filters.rest_framework.DjangoFilterBackend"])
+
+REST_FRAMEWORK.setdefault("PAGE_SIZE", 10)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
