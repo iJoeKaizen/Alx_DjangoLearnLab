@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    # ✅ CharField for password (write_only so it never shows up in responses)
+    # CharField for password
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -20,17 +20,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
     def create(self, validated_data):
-        # ✅ ensures password gets hashed properly
-        user = User.objects.create_user(
+        #  use get_user_model().objects.create_user
+        user = get_user_model().objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
         )
-        Token.objects.create(user=user)  # auto-generate token on registration
+        Token.objects.create(user=user)  # auto-create token
         return user
 
 
 class LoginSerializer(serializers.Serializer):
-    # ✅ both are CharField()
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
