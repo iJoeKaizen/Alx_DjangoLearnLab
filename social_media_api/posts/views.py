@@ -1,8 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import action
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,8 +13,9 @@ from django.shortcuts import get_object_or_404
 
 from .models import Post, Comment
 from .serializers import PostListSerializer, PostDetailSerializer, CommentSerializer
+from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
-from .views import StandardResultsSetPagination 
+from .views import StandardResultsSetPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -66,3 +68,32 @@ class FeedListView(ListAPIView):
         # If the user follows no one, return empty queryset
         following_users = user.following.all()
         return Post.objects.filter(author__in=following_users).order_by("-created_at")
+    
+class PostListCreateView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    # ✅ explicitly contains permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permisson_classes = [permissions.IsAuthenticated]
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])  # ✅ added here
+def feed(request):
+    # Get posts from users the current user follows
+    following_users = request.user.following.all()
+    posts = Post.objects.filter(author__in=following_users).order_by("-created_at")
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
+
+
+class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    # ✅ explicitly contains permissions.IsAuthenticated
+    permission_classes = [permissions.IsAuthenticated]
