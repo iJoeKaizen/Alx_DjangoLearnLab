@@ -7,10 +7,10 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from notifications.utils import create_notification
-
 from .models import Post, Comment, Like
 from .serializers import (PostListSerializer, PostDetailSerializer, CommentSerializer, LikeSerializer)
 from .permissions import IsOwnerOrReadOnly
+from notifications.models import Notification
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -84,16 +84,23 @@ class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk, *args, **kwargs):
+        # 1️⃣ Get the post or 404
         post = get_object_or_404(Post, pk=pk)
         user = request.user
 
-        # Prevent duplicate likes (unique_together enforced in db too)
-        like, created = Like.objects.get_or_create(post=post, user=user)
+        # 2️⃣ Create a like if not already liked
+        like, created = Like.objects.get_or_create(user=user, post=post)
         if not created:
             return Response({"detail": "Already liked."}, status=status.HTTP_200_OK)
 
-        # create_notification is also handled by signals, but if you want immediate creation here:
-        # create_notification(recipient=post.author, actor=user, verb="liked your post", target=post)
+        # 3️⃣ Create a notification for the post author
+        if post.author != user:  # avoid notifying self
+            Notification.objects.create(
+                recipient=post.author,
+                actor=user,
+                verb="liked your post",
+                target=post
+            )
 
         serializer = LikeSerializer(like, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -106,8 +113,17 @@ class UnlikePostView(APIView):
         post = get_object_or_404(Post, pk=pk)
         user = request.user
         try:
-            like = Like.objects.get(post=post, user=user)
-            like.delete()  # signal will remove notification if implemented
+            like = Like.objects.get(user=user, post=post)
+            like.delete()
+
+            # Remove notification if exists
+            Notification.objects.filter(
+                recipient=post.author,
+                actor=user,
+                verb="liked your post",
+                target=post
+            ).delete()
+
             return Response({"detail": "Unliked."}, status=status.HTTP_200_OK)
         except Like.DoesNotExist:
             return Response({"detail": "Not liked yet."}, status=status.HTTP_400_BAD_REQUEST)
