@@ -7,6 +7,9 @@ from .models import User
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = DjangoUserAdmin.fieldsets + (
-    ("Profile", {"fields": ("bio", "profile_picture", "followers")}),
+    ("Profile", {"fields": ("bio", "profile_picture", "following")}),
     )
-    filter_horizontal = ("groups", "user_permissions", "followers")
+    filter_horizontal = ("groups", "user_permissions", "following")
+
+
+

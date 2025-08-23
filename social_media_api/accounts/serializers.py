@@ -29,7 +29,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)  # auto-create token
         return user
 
-
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+class UserMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "profile_picture"]
+
+class FollowActionSerializer(serializers.Serializer):
+    # This serializer is used if you want to accept a payload (not strictly necessary for path-based follow/unfollow)
+    target_user_id = serializers.IntegerField()
