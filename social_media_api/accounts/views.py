@@ -7,6 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from notifications.utils import create_notification
+
 
 from .serializers import RegisterSerializer, UserSerializer, UserMiniSerializer
 
@@ -122,6 +124,7 @@ def follow_user(request, user_id):
         return Response({"detail": "You cannot follow yourself."}, status=400)
 
     request.user.following.add(user_to_follow)
+    create_notification(recipient=user_to_follow, actor=request.user, verb="followed you", target=request.user)
     return Response({"detail": f"You are now following {user_to_follow.username}"})
 
 
