@@ -80,27 +80,66 @@ def feed(request):
     return Response(serializer.data)
 
 
+# class LikePostView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request, pk, *args, **kwargs):
+#         # 1️⃣ Get the post or 404
+#         post = get_object_or_404(Post, pk=pk)
+#         user = request.user
+
+#         # 2️⃣ Create a like if not already liked
+#         like, created = Like.objects.get_or_create(user=user, post=post)
+#         if not created:
+#             return Response({"detail": "Already liked."}, status=status.HTTP_200_OK)
+
+#         # 3️⃣ Create a notification for the post author
+#         if post.author != user:  # avoid notifying self
+#             Notification.objects.create(
+#                 recipient=post.author,
+#                 actor=user,
+#                 verb="liked your post",
+#                 target=post
+#             )
+
+#         serializer = LikeSerializer(like, context={"request": request})
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# class UnlikePostView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request, pk, *args, **kwargs):
+#         post = get_object_or_404(Post, pk=pk)
+#         user = request.user
+#         try:
+#             like = Like.objects.get(user=user, post=post)
+#             like.delete()
+
+#             # Remove notification if exists
+#             Notification.objects.filter(
+#                 recipient=post.author,
+#                 actor=user,
+#                 verb="liked your post",
+#                 target=post
+#             ).delete()
+
+#             return Response({"detail": "Unliked."}, status=status.HTTP_200_OK)
+#         except Like.DoesNotExist:
+#             return Response({"detail": "Not liked yet."}, status=status.HTTP_400_BAD_REQUEST)
+
 class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk, *args, **kwargs):
-        # 1️⃣ Get the post or 404
+        # ✅ Get the post or return 404
         post = get_object_or_404(Post, pk=pk)
         user = request.user
 
-        # 2️⃣ Create a like if not already liked
+        # ✅ Create like if it doesn't exist
         like, created = Like.objects.get_or_create(user=user, post=post)
         if not created:
             return Response({"detail": "Already liked."}, status=status.HTTP_200_OK)
-
-        # 3️⃣ Create a notification for the post author
-        if post.author != user:  # avoid notifying self
-            Notification.objects.create(
-                recipient=post.author,
-                actor=user,
-                verb="liked your post",
-                target=post
-            )
 
         serializer = LikeSerializer(like, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -110,20 +149,13 @@ class UnlikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk, *args, **kwargs):
+        # ✅ Get the post or return 404
         post = get_object_or_404(Post, pk=pk)
         user = request.user
+
         try:
             like = Like.objects.get(user=user, post=post)
             like.delete()
-
-            # Remove notification if exists
-            Notification.objects.filter(
-                recipient=post.author,
-                actor=user,
-                verb="liked your post",
-                target=post
-            ).delete()
-
             return Response({"detail": "Unliked."}, status=status.HTTP_200_OK)
         except Like.DoesNotExist:
             return Response({"detail": "Not liked yet."}, status=status.HTTP_400_BAD_REQUEST)
