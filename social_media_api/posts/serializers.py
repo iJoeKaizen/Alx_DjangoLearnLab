@@ -46,7 +46,9 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
+    post = serializers.PrimaryKeyRelatedField(read_only=True)  # ensures view sets the post
+
     class Meta:
         model = Like
         fields = ["id", "post", "user", "created_at"]
-        read_only_fields = ["id", "user", "created_at"]
+        read_only_fields = ["id", "user", "post", "created_at"]
